@@ -3,6 +3,7 @@
  */
 package org.mgwo.cloudsim;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedList;
@@ -51,43 +52,71 @@ public class Main {
             
             // Buat Cloudlets (Tugas)
             List<Cloudlet> cloudletList = new ArrayList<>();
-            int cloudletCount = 100; // Jumlah tugas (diubah juga)
+            int cloudletCount = 100; // Jumlah tugas
             for (int i = 0; i < cloudletCount; i++) {
-            	// Uncomment Cloudlet untuk uji coba
-            	
-            	// Cloudlet Kecil 
-            	Cloudlet cloudletSmall = new Cloudlet(0, 1000, 1, 100, 50, new UtilizationModelFull(), new UtilizationModelFull(), new UtilizationModelFull());
-            	cloudletSmall.setUserId(broker.getId());
-            	cloudletList.add(cloudletSmall);
-
-            	// Cloudlet Menengah
-//            	Cloudlet cloudletMedium = new Cloudlet(1, 5000, 1, 500, 250, new UtilizationModelFull(), new UtilizationModelFull(), new UtilizationModelFull());
-//            	cloudletMedium.setUserId(broker.getId());
-//            	cloudletList.add(cloudletMedium);
-
-            	// Cloudlet Besar
-//            	Cloudlet cloudletLarge = new Cloudlet(2, 15000, 1, 1500, 750, new UtilizationModelFull(), new UtilizationModelFull(), new UtilizationModelFull());
-//            	cloudletLarge.setUserId(broker.getId());
-//            	cloudletList.add(cloudletLarge);
+                Cloudlet cloudlet = new Cloudlet(
+                    i, 
+                    getRandomInRange(750, 1250), 
+                    1, 
+                    getRandomInRange(75, 125), 
+                    getRandomInRange(25, 75), 
+                    new UtilizationModelFull(), 
+                    new UtilizationModelFull(), 
+                    new UtilizationModelFull()
+                );
+                cloudlet.setUserId(broker.getId());
+                cloudletList.add(cloudlet);
             }
             broker.submitCloudletList(cloudletList);
 
-            // Gunakan MGWO Scheduler untuk optimasi
+            // Gunakan MGWO Scheduler untuk optimasi (Placeholder untuk implementasi Anda)
             TaskSchedulerMGWO scheduler = new TaskSchedulerMGWO(vmList, cloudletList);
-            scheduler.optimize();
-
+            
             // Jalankan Simulasi
             CloudSim.startSimulation();
             CloudSim.stopSimulation();
 
             // Hasil Akhir
             List<Cloudlet> finishedTasks = broker.getCloudletReceivedList();
-            for (Cloudlet task : finishedTasks) {
-                System.out.println("Cloudlet " + task.getCloudletId() + " selesai di VM " + task.getVmId());
-            }
+            printCloudletList(finishedTasks);
+            scheduler.optimize();
+            
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    
+    // Fungsi untuk mencetak daftar cloudlet
+    public static void printCloudletList(List<Cloudlet> list) {
+        int size = list.size();
+        Cloudlet cloudlet;
+
+        System.out.println("\n========== OUTPUT ==========");
+        System.out.println("Cloudlet ID\tStatus\tData center ID\tVM ID\tTime\tStart Time\tFinish Time");
+
+        DecimalFormat dft = new DecimalFormat("###.##");
+        for (int i = 0; i < size; i++) {
+            cloudlet = list.get(i);
+
+            System.out.print(cloudlet.getCloudletId() + "\t\t");
+
+            if (cloudlet.getCloudletStatus() == Cloudlet.SUCCESS) {
+                System.out.print("SUCCESS\t");
+                System.out.print(cloudlet.getResourceId() + "\t\t");
+                System.out.print(cloudlet.getVmId() + "\t");
+                System.out.print(dft.format(cloudlet.getActualCPUTime()) + "\t");
+                System.out.print(dft.format(cloudlet.getExecStartTime()) + "\t\t");
+                System.out.print(dft.format(cloudlet.getFinishTime()) + "\t");
+            } else {
+                System.out.print("FAILED\t");
+            }
+            System.out.println();
+        }
+    }
+
+    // Fungsi untuk menghasilkan nilai acak dalam rentang
+    public static int getRandomInRange(int min, int max) {
+        return (int) (Math.random() * (max - min + 1)) + min;
     }
     
     private static Datacenter createDatacenter(String name) {

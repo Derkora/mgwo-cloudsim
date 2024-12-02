@@ -35,10 +35,10 @@ public class TaskSchedulerMGWO {
         double degreeOfImbalance = fitnessFunction.calculateDegreeOfImbalance(bestAllocation);
 
         // Cetak hasil
-        System.out.println("=== Hasil Optimasi ===");
+        System.out.println("\n==== Hasil Optimasi ====");
         System.out.println("Makespan: " + makespan);
         System.out.println("Resource Utilization: " + resourceUtilization);
         System.out.println("Degree of Imbalance: " + degreeOfImbalance);
-        System.out.println("=====================");
+        System.out.println("========================");
     }
 }
